@@ -6,7 +6,7 @@
 int main(int argc, char* args[])
 {	
 	if (argc >= 2)
-		argparse(argc, args);
+		return argparse(argc, args);
 	else 
 	{
 		std::cout << "At least One Argument should be passed";

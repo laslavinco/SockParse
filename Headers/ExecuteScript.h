@@ -1,3 +1,4 @@
 #pragma once
-bool PathExists(const char* path);
-void execute(const char* script_path);
+#include<iostream>
+bool PathExists(std::string& path);
+int execute(std::string script_path);

@@ -1,57 +1,55 @@
 #include <experimental/filesystem>
 #include <iostream>
-#include <list>
+#include <array>
+#include <cstdlib>
+#include <cstdio>
 
-
-bool PathExists(std::string path)
-{
-	bool res = std::experimental::filesystem::exists(path);
-	return std::experimental::filesystem::exists(path);
-}
+namespace fs = std::experimental::filesystem;
 
 std::string GetPythonPath()
 {
-	std::list<const char*> paths = 
+
+	std::array<std::string, 2> paths = 
 	{ "C:/Python27/python.exe", "C:/Program Files/Autodesk/Maya2016/bin/mayapy.exe" };
-
-	std::list<const char*>::iterator it = paths.begin();
-
-	for (int i = 0; i < sizeof(paths); i++)
-	{
-		std::advance(it, i);
-		std::string path = *it;
-		if (PathExists(path))
-			return path;
-	}
-	
+	// \\bglrstxtx001\storage\projects\commres\Library\Scripts\Python27\Python.exe
+	return paths[0];
 }
 
-void execute(const char* script_path)
+int execute(std::string script_path)
 {
 	std::string python_path = GetPythonPath();
-	std::string string_script_path = std::string(script_path);
-	if (!(PathExists(script_path)))
+
+	if (!(fs::exists(script_path)))
 	{
-		printf("given path %s does not exists", script_path);
-		throw std::invalid_argument("Give path does not exists");
+		printf("given path %s does not exists\n", script_path.c_str());
+		return 0;
 	}
 	
-	const int total = sizeof(python_path) + sizeof(script_path);
-	char* command = _strdup(python_path.c_str());
-
-	for (int i = 0; i < sizeof(string_script_path); i++)
-	{
-		
-		if (string_script_path[i] == '\\')
-		{
-			string_script_path[i] = '/';
-		}
-	}
-	script_path = string_script_path.c_str();
-	strcat(command, " ");
-	strcat(command, script_path);
-
-	std::string string_command = std::string(command);
-	system(string_command.c_str());
+	std::string command = python_path + " " + script_path;
 	
+	for (char& char_ref : command) {
+		if (char_ref == '\\')
+			char_ref = '/';
+	}
+
+	std::cout << command.c_str() << std::endl;
+	std::cin.get();
+	//system(command.c_str());
+	std::array<char, 128> buffer;
+	std::string result;
+	FILE* pipe = _popen(command.c_str(), "r");
+	if (!pipe)
+	{
+		std::cerr << "Error occured while reading pipe" << std::endl;
+		return 0;
+	}
+	while (fgets(buffer.data(), 128, pipe) != NULL)
+	{
+		std::cout << "Reading data " << std::endl;
+		result += buffer.data();
+	}
+	auto returnCode = _pclose(pipe);
+	std::cout << result << std::endl;
+	std::cout << returnCode << std::endl;
+	return 1;
 }

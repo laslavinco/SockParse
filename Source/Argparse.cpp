@@ -19,15 +19,13 @@ int argparse(int ac, char** av)
 		std::cout << desc << "\n";
 		return 1;
 	}
-
-	else if (!(vm.count("script")) || (!(av[sizeof(av) - 2])))
+	else if (!(vm.count("script")) || (ac-1 != 2))
 	{
-		std::cerr << "bullshit arguments passed, maybe you are forgetting to use -- ";
+		std::cerr << "invalid arguments passed, maybe you are forgetting to use -- \n";
 		return 0;
 	}
 
-	const char* script_name = av[sizeof(av) - 2];
-	std::cout << "Executing script " << script_name;
-	execute(script_name);
-	return 1;
+	std::string script_name = av[ac - 1];
+	std::cout << "Executing script " << script_name << std::endl;
+	return execute(script_name);
 }	
